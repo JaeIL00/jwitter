@@ -48,6 +48,9 @@ const Jweet = ({ jweetObj, isOwner }) => {
       ) : (
         <>
           <h4>{jweetObj.text}</h4>
+          {jweetObj.attachmentUrl && (
+            <img src={jweetObj.attachmentUrl} alt="게시물 사진" width="100px" />
+          )}
           {isOwner && (
             <>
               <button onClick={toggleEditing}>Edit</button>

@@ -1,5 +1,5 @@
 import Jweet from "components/Jweet";
-import { dbService } from "fbase";
+import { dbService, storageService } from "fbase";
 import {
   addDoc,
   collection,
@@ -7,11 +7,14 @@ import {
   orderBy,
   query,
 } from "firebase/firestore";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import React, { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 const Home = ({ userObj }) => {
   const [jweet, setJweet] = useState("");
   const [jweets, setJweets] = useState([]);
+  const [attachment, setAttachment] = useState("");
 
   useEffect(() => {
     const dbJweets = query(
@@ -29,16 +32,26 @@ const Home = ({ userObj }) => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    try {
-      await addDoc(collection(dbService, "jweets"), {
-        text: jweet,
-        createdAt: Date.now(),
-        creatorId: userObj.uid,
-      });
-      setJweet("");
-    } catch (error) {
-      console.log(error);
+    let attachmentUrl = "";
+    if (attachment !== "") {
+      const attachmentRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
+      const response = await uploadString(
+        attachmentRef,
+        attachment,
+        "data_url"
+      );
+      attachmentUrl = await getDownloadURL(response.ref);
     }
+    const jweetObj = {
+      text: jweet,
+      createdAt: Date.now(),
+      creatorId: userObj.uid,
+      attachmentUrl,
+    };
+
+    await addDoc(collection(dbService, "jweets"), jweetObj);
+    setJweet("");
+    setAttachment("");
   };
 
   const onChange = (event) => {
@@ -48,7 +61,6 @@ const Home = ({ userObj }) => {
     setJweet(value);
   };
 
-  const [attachment, setAttachment] = useState();
   const onFileChange = (event) => {
     const {
       target: { files },
@@ -80,7 +92,7 @@ const Home = ({ userObj }) => {
         <input type="submit" value="Jweet" />
         {attachment && (
           <div>
-            <img src={attachment} alt="게시물 사진" width="500px" />
+            <img src={attachment} alt="업로드 사진 미리보기" width="300px" />
             <button onClick={onClearAttachmentClick}>Clear</button>
           </div>
         )}

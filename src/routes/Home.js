@@ -1,3 +1,4 @@
+import Jweet from "components/Jweet";
 import { dbService } from "fbase";
 import {
   addDoc,
@@ -58,10 +59,12 @@ const Home = ({ userObj }) => {
         <input type="submit" value="Jweet" />
       </form>
       <div>
-        {jweets.map(({ id, text }) => (
-          <div key={id}>
-            <h4>{text}</h4>
-          </div>
+        {jweets.map((jweetObj) => (
+          <Jweet
+            key={jweetObj.id}
+            jweetObj={jweetObj}
+            isOwner={jweetObj.creatorId === userObj.uid}
+          />
         ))}
       </div>
     </div>

@@ -40,12 +40,32 @@ const Home = ({ userObj }) => {
       console.log(error);
     }
   };
+
   const onChange = (event) => {
     const {
       target: { value },
     } = event;
     setJweet(value);
   };
+
+  const [attachment, setAttachment] = useState();
+  const onFileChange = (event) => {
+    const {
+      target: { files },
+    } = event;
+    const theFile = files[0];
+    const reader = new FileReader();
+    reader.onloadend = (finishedEvent) => {
+      const {
+        currentTarget: { result },
+      } = finishedEvent;
+      setAttachment(result);
+    };
+    reader.readAsDataURL(theFile);
+  };
+
+  const onClearAttachmentClick = () => setAttachment(null);
+
   return (
     <div>
       <form onSubmit={onSubmit}>
@@ -56,7 +76,14 @@ const Home = ({ userObj }) => {
           value={jweet}
           onChange={onChange}
         />
+        <input type="file" accept="image/*" onChange={onFileChange} />
         <input type="submit" value="Jweet" />
+        {attachment && (
+          <div>
+            <img src={attachment} alt="게시물 사진" width="500px" />
+            <button onClick={onClearAttachmentClick}>Clear</button>
+          </div>
+        )}
       </form>
       <div>
         {jweets.map((jweetObj) => (

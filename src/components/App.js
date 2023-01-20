@@ -5,13 +5,11 @@ import { updateProfile } from "firebase/auth";
 
 const App = () => {
   const [init, setInit] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userObj, setUserObj] = useState(null);
 
   useEffect(() => {
     authService.onAuthStateChanged((user) => {
       if (user) {
-        setIsLoggedIn(true);
         setUserObj({
           displayName: user.displayName,
           uid: user.uid,
@@ -19,7 +17,6 @@ const App = () => {
             updateProfile(user, { displayName: user.displayName }),
         });
       } else {
-        setIsLoggedIn(false);
         setUserObj(null);
       }
       setInit(true);
@@ -39,7 +36,7 @@ const App = () => {
     <>
       {init ? (
         <AppRouter
-          isLoggedIn={isLoggedIn}
+          isLoggedIn={Boolean(userObj)}
           userObj={userObj}
           refreshUser={refreshUser}
         />

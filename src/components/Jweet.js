@@ -28,7 +28,8 @@ const Jweet = ({ jweetObj, isOwner }) => {
     if (ok) {
       // delete
       await deleteDoc(jweetTestRef);
-      await deleteObject(ref(storageService, jweetObj.attachmentUrl));
+      if (jweetObj.attachmentUrl)
+        await deleteObject(ref(storageService, jweetObj.attachmentUrl));
     }
   };
   return (
